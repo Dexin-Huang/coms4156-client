@@ -13,7 +13,7 @@ Web client for Alpha-Boost service API. Simulates stock trading application.
 ### Requirements
 
 - Node.js 18+
-- Alpha-Boost service at http://localhost:8080
+- Alpha-Boost service running
 
 ### Setup
 
@@ -160,7 +160,7 @@ client/
 
 ### "Failed to fetch" / Network errors
 
-- Alpha-Boost service must run at http://localhost:8080
+- Alpha-Boost service must be running
 - Check .env.local has NEXT_PUBLIC_API_URL
 - Verify CORS enabled on server
 
