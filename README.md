@@ -127,7 +127,7 @@ Responses:
 
 curl:
 ```bash
-curl -X POST http://localhost:8080/apps \
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \
   -H "User-Agent: my-app-name"
 ```
 
@@ -135,7 +135,7 @@ Python:
 ```python
 import requests
 response = requests.post(
-    'http://localhost:8080/apps',
+    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',
     headers={'User-Agent': 'my-app-name'}
 )
 print(response.json())
@@ -165,7 +165,7 @@ Responses:
 
 curl:
 ```bash
-curl -X DELETE http://localhost:8080/apps \
+curl -X DELETE https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \
   -H "User-Agent: my-app-name"
 ```
 
@@ -173,7 +173,7 @@ Python:
 ```python
 import requests
 response = requests.delete(
-    'http://localhost:8080/apps',
+    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',
     headers={'User-Agent': 'my-app-name'}
 )
 print(response.json())
@@ -219,7 +219,7 @@ Responses:
 
 curl:
 ```bash
-curl -X POST http://localhost:8080/apps/transactions \
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \
   -H "User-Agent: my-app-name" \
   -H "Content-Type: application/json" \
   -d '{"symbol":"AAPL","side":"buy","qty":100,"price":150.25}'
@@ -229,7 +229,7 @@ Python:
 ```python
 import requests
 response = requests.post(
-    'http://localhost:8080/apps/transactions',
+    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',
     headers={'User-Agent': 'my-app-name'},
     json={'symbol': 'AAPL', 'side': 'buy', 'qty': 100, 'price': 150.25}
 )
@@ -258,7 +258,7 @@ Response (200 OK):
 
 curl:
 ```bash
-curl -X GET http://localhost:8080/apps/transactions \
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \
   -H "User-Agent: my-app-name"
 ```
 
@@ -266,7 +266,7 @@ Python:
 ```python
 import requests
 response = requests.get(
-    'http://localhost:8080/apps/transactions',
+    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',
     headers={'User-Agent': 'my-app-name'}
 )
 for txn in response.json()['transactions']:
@@ -299,7 +299,7 @@ Fields:
 
 curl:
 ```bash
-curl -X GET http://localhost:8080/predictions/AAPL \
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL \
   -H "User-Agent: my-app-name"
 ```
 
@@ -307,7 +307,7 @@ Python:
 ```python
 import requests
 response = requests.get(
-    'http://localhost:8080/predictions/AAPL',
+    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL',
     headers={'User-Agent': 'my-app-name'}
 )
 data = response.json()
@@ -337,7 +337,7 @@ All errors return:
 import requests
 
 class AlphaBoostClient:
-    def __init__(self, app_name, api_url='http://localhost:8080'):
+    def __init__(self, app_name, api_url='https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app'):
         self.app_name = app_name
         self.api_url = api_url
         self.session = requests.Session()
