@@ -2,6 +2,14 @@
 
 Web client for Alpha-Boost service API. Stock trading application.
 
+## Technology Stack
+
+- Next.js 14 (React framework)
+- React 18
+- Next.js API routes (backend proxy)
+- sessionStorage (client state)
+- Fetch API (HTTP requests)
+
 ## Build and Run
 
 ### Requirements
@@ -53,6 +61,39 @@ Each browser tab/window gets a unique instance ID automatically. Data is isolate
 
 Different browsers or incognito windows also get separate isolated instances.
 
+### How It Works
+
+1. On page load, client generates UUID via `crypto.randomUUID()`
+2. First 8 characters stored in sessionStorage as instance ID
+3. App name generated: `RobinTrade-{instanceId}`
+4. App name sent as User-Agent header with every request
+5. Service uses User-Agent to identify and isolate client data
+
+### Testing Multiple Instances
+
+Terminal 1 (Client A):
+```bash
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps  -H "User-Agent: client-a"
+
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions  -H "User-Agent: client-a"  -H "Content-Type: application/json"  -d '{"symbol":"AAPL","side":"buy","qty":100,"price":150}'
+```
+
+Terminal 2 (Client B):
+```bash
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps  -H "User-Agent: client-b"
+
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions  -H "User-Agent: client-b"  -H "Content-Type: application/json"  -d '{"symbol":"GOOG","side":"buy","qty":50,"price":140}'
+```
+
+Verify isolation:
+```bash
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions  -H "User-Agent: client-a"
+# Returns only AAPL transaction
+
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions  -H "User-Agent: client-b"
+# Returns only GOOG transaction
+```
+
 ## Tests
 
 ### Multi-Instance Verification
@@ -67,6 +108,10 @@ ORDER BY created_at;
 ```
 
 ### E2E Tests
+
+See [E2E_TEST_CHECKLIST.md](E2E_TEST_CHECKLIST.md) for structured test cases with expected inputs and outputs.
+
+Summary:
 
 App Registration:
 - Register new app (POST /apps, 201)
@@ -127,16 +172,13 @@ Responses:
 
 curl:
 ```bash
-curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \
-  -H "User-Agent: my-app-name"
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \  -H "User-Agent: my-app-name"
 ```
 
 Python:
 ```python
 import requests
-response = requests.post(
-    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',
-    headers={'User-Agent': 'my-app-name'}
+response = requests.post(   'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',   headers={'User-Agent': 'my-app-name'}
 )
 print(response.json())
 ```
@@ -165,16 +207,13 @@ Responses:
 
 curl:
 ```bash
-curl -X DELETE https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \
-  -H "User-Agent: my-app-name"
+curl -X DELETE https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps \  -H "User-Agent: my-app-name"
 ```
 
 Python:
 ```python
 import requests
-response = requests.delete(
-    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',
-    headers={'User-Agent': 'my-app-name'}
+response = requests.delete(   'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps',   headers={'User-Agent': 'my-app-name'}
 )
 print(response.json())
 ```
@@ -219,19 +258,13 @@ Responses:
 
 curl:
 ```bash
-curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \
-  -H "User-Agent: my-app-name" \
-  -H "Content-Type: application/json" \
-  -d '{"symbol":"AAPL","side":"buy","qty":100,"price":150.25}'
+curl -X POST https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \  -H "User-Agent: my-app-name" \  -H "Content-Type: application/json" \  -d '{"symbol":"AAPL","side":"buy","qty":100,"price":150.25}'
 ```
 
 Python:
 ```python
 import requests
-response = requests.post(
-    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',
-    headers={'User-Agent': 'my-app-name'},
-    json={'symbol': 'AAPL', 'side': 'buy', 'qty': 100, 'price': 150.25}
+response = requests.post(   'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',   headers={'User-Agent': 'my-app-name'},   json={'symbol': 'AAPL', 'side': 'buy', 'qty': 100, 'price': 150.25}
 )
 print(response.json())
 ```
@@ -248,29 +281,21 @@ User-Agent: my-app-name
 
 Response (200 OK):
 ```json
-{
-  "app_username": "my-app-name",
-  "transactions": [
-    {"id": 42, "app_username": "my-app-name", "symbol": "AAPL", "side": "buy", "qty": "100", "price": "150.25", "ts": "2025-01-15T10:30:00Z"}
-  ]
+{ "app_username": "my-app-name", "transactions": [   {"id": 42, "app_username": "my-app-name", "symbol": "AAPL", "side": "buy", "qty": "100", "price": "150.25", "ts": "2025-01-15T10:30:00Z"} ]
 }
 ```
 
 curl:
 ```bash
-curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \
-  -H "User-Agent: my-app-name"
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions \  -H "User-Agent: my-app-name"
 ```
 
 Python:
 ```python
 import requests
-response = requests.get(
-    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',
-    headers={'User-Agent': 'my-app-name'}
+response = requests.get(   'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/apps/transactions',   headers={'User-Agent': 'my-app-name'}
 )
-for txn in response.json()['transactions']:
-    print(f"{txn['side']} {txn['qty']} {txn['symbol']} @ ${txn['price']}")
+for txn in response.json()['transactions']:   print(f"{txn['side']} {txn['qty']} {txn['symbol']} @ ${txn['price']}")
 ```
 
 ### GET /predictions/{ticker}
@@ -299,16 +324,13 @@ Fields:
 
 curl:
 ```bash
-curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL \
-  -H "User-Agent: my-app-name"
+curl -X GET https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL \  -H "User-Agent: my-app-name"
 ```
 
 Python:
 ```python
 import requests
-response = requests.get(
-    'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL',
-    headers={'User-Agent': 'my-app-name'}
+response = requests.get(   'https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app/predictions/AAPL',   headers={'User-Agent': 'my-app-name'}
 )
 data = response.json()
 print(f"Probability Up: {data['prob_up'] * 100:.1f}%")
@@ -336,27 +358,11 @@ All errors return:
 ```python
 import requests
 
-class AlphaBoostClient:
-    def __init__(self, app_name, api_url='https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app'):
-        self.app_name = app_name
-        self.api_url = api_url
-        self.session = requests.Session()
-        self.session.headers.update({'User-Agent': app_name})
-
-    def create_app(self):
-        return self.session.post(f'{self.api_url}/apps').json()
-
-    def create_transaction(self, symbol, side, qty, price):
-        return self.session.post(
-            f'{self.api_url}/apps/transactions',
-            json={'symbol': symbol, 'side': side, 'qty': qty, 'price': price}
-        ).json()
-
-    def get_transactions(self):
-        return self.session.get(f'{self.api_url}/apps/transactions').json()
-
-    def get_prediction(self, ticker):
-        return self.session.get(f'{self.api_url}/predictions/{ticker}').json()
+class AlphaBoostClient:   def __init__(self, app_name, api_url='https://alpha-boost-service-tbmfdv7fhq-uc.a.run.app'):       self.app_name = app_name       self.api_url = api_url       self.session = requests.Session()       self.session.headers.update({'User-Agent': app_name})
+   def create_app(self):       return self.session.post(f'{self.api_url}/apps').json()
+   def create_transaction(self, symbol, side, qty, price):       return self.session.post(           f'{self.api_url}/apps/transactions',           json={'symbol': symbol, 'side': side, 'qty': qty, 'price': price}       ).json()
+   def get_transactions(self):       return self.session.get(f'{self.api_url}/apps/transactions').json()
+   def get_prediction(self, ticker):       return self.session.get(f'{self.api_url}/predictions/{ticker}').json()
 
 client = AlphaBoostClient('my-bot')
 client.create_app()
