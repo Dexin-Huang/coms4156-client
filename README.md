@@ -347,10 +347,27 @@ print(f"Strength: {data['strength'] * 100:.1f}%")
 | 404 | Not Found |
 | 409 | Conflict |
 | 500 | Server Error |
+| 502 | Bad Gateway |
+| 503 | Service Unavailable |
 
 All errors return:
 ```json
 {"error": "error_message"}
+```
+
+### Client-Side Error Handling
+
+The client handles backend failures gracefully:
+
+| Error | Code | Cause |
+|-------|------|-------|
+| empty_response | 502 | Backend returned empty body |
+| invalid_json | 502 | Backend returned non-JSON response |
+| service_unavailable | 503 | Backend unreachable or network error |
+
+Example error response:
+```json
+{"error": "service_unavailable", "details": "fetch failed"}
 ```
 
 ## Example Client
